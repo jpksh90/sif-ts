@@ -47,7 +47,10 @@ class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
             case None => None
           case None => None
 
-  def isTypable: Boolean = commandType(p.getRoot).isDefined
+  def isTypable: Boolean =
+    val ctype = commandType(p.getRoot)
+    println(s"${p.getRoot} \n typable in " + ctype)
+    ctype.isDefined
 
   def isNotTypable: Boolean = !isTypable
 }

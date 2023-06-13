@@ -3,6 +3,7 @@ class Program(command: Command) {
 }
 
 enum Op(repr: String):
+  override def toString: String = this.repr
   case Plus extends Op("+")
   case Minus extends Op("-")
   case Div extends Op("/")
@@ -38,7 +39,7 @@ abstract sealed class Expr {
         case Var(x) => x
         case Num(n) => String.valueOf(n)
         case BinOp(e1, e2, op) =>
-          s"${e1.toString} ${op} ${e2.toString}"
+          s"${e1.toString}$op${e2.toString}"
         case Declassify(e, l) => s"declassify(${e.toString()}, ${l})"
       }
 }
@@ -52,11 +53,11 @@ case class Declassify(e: Expr, l: TPLattice) extends Expr
 
 sealed abstract class Command {
   override def toString: String = this match {
-    case Assign(v, e) => s"${v.toString} := ${e.toString}"
+    case Assign(v, e) => s"${v.toString}:=${e.toString}"
     case Skip() => "skip"
     case IfThenElse(e, thenPart, elsePart) => s"if (${e.toString}) ${thenPart.toString} else ${elsePart.toString}"
     case While(e, body) => s"while (${e.toString}) { ${body.toString}"
-    case Sequence(c1, c2) => s"${c1.toString};${c2.toString}"
+    case Sequence(c1, c2) => s"${c1.toString}; ${c2.toString}"
   }
 }
 
