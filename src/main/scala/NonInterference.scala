@@ -28,10 +28,8 @@ class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
         val thenType = commandType(thenPart)
         val elseType = commandType(elsePart)
         expr match
-          case Some(TPLattice.Low) => if thenType.isEmpty || elseType.isEmpty then None else Some(TPLattice.Low)
-          case Some(TPLattice.High) => (thenType,elseType) match
-            case (Some(TPLattice.High),Some(TPLattice.High)) => Some(TPLattice.High)
-            case (_,_) => None
+          case Some(TPLattice.Low) => if thenType.isDefined && elseType.isDefined then Some(TPLattice.Low) else None
+          case Some(TPLattice.High) => if thenType.contains(TPLattice.High) && elseType.contains(TPLattice.High) then Some(TPLattice.High) else None
           case None => None
 
       case While(e, b) =>
@@ -41,8 +39,6 @@ class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
           case Some(TPLattice.Low) => if body.isDefined then expr else None
           case Some(TPLattice.High) => Some(TPLattice.High).filter(body.contains)
           case None => None
-
-
 
       case Sequence(c1, c2) =>
         val c1type = commandType(c1)
