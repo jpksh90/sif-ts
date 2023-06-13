@@ -1,5 +1,5 @@
 class Program(command: Command) {
-  def getRoot: Command = command
+  def get: Command = command
 }
 
 enum Op(repr: String):

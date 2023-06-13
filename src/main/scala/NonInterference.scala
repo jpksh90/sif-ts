@@ -1,5 +1,6 @@
 import scala.collection.immutable.HashMap
 
+
 class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
 
   private def exprType(e: Expr): Option[TPLattice] =
@@ -26,16 +27,21 @@ class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
         val expr = exprType(e)
         val thenType = commandType(thenPart)
         val elseType = commandType(elsePart)
-        if (expr.isEmpty || thenType.isEmpty || elseType.isEmpty) then None
-        else if expr.get == TPLattice.Low || expr.get == thenType.get && thenType.get == elseType.get then expr // automatically encodes subtyping rule
-        else None
+        expr match
+          case Some(TPLattice.Low) => if thenType.isEmpty || elseType.isEmpty then None else Some(TPLattice.Low)
+          case Some(TPLattice.High) => (thenType,elseType) match
+            case (Some(TPLattice.High),Some(TPLattice.High)) => Some(TPLattice.High)
+            case (_,_) => None
+          case None => None
 
       case While(e, b) =>
         val expr = exprType(e)
         val body = commandType(b)
-        if expr.isEmpty || body.isEmpty then None
-        else if expr.get == TPLattice.Low || expr.get == body.get then expr // automatically encodes subtyping rule
-        else None
+        expr match
+          case Some(TPLattice.Low) => if body.isDefined then expr else None
+          case Some(TPLattice.High) => Some(TPLattice.High).filter(body.contains)
+          case None => None
+
 
 
       case Sequence(c1, c2) =>
@@ -47,10 +53,7 @@ class NonInterference(p: Program, typingEnv: HashMap[Var, TPLattice]) {
             case None => None
           case None => None
 
-  def isTypable: Boolean =
-    val ctype = commandType(p.getRoot)
-    println(s"${p.getRoot} \n typable in " + ctype)
-    ctype.isDefined
-
+  def getType: Option[TPLattice] = commandType(p.get)
+  def isTypable: Boolean = getType.isDefined
   def isNotTypable: Boolean = !isTypable
 }
