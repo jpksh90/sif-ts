@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
 
-class TestProgram extends AnyFunSuite {
+class TestNonInterference extends AnyFunSuite {
   test(" x=x+1 is typable ") {
     val x = Var("x")
     val p = Program(Assign(x, BinOp(x, Num(1), Plus)))

@@ -1,6 +1,13 @@
+import math.Ordered.orderingToOrdered
+import scala.util.parsing.combinator._
+
 class Program(command: Command) {
   def get: Command = command
+
+  override def toString: String = command.toString
+
 }
+
 
 enum Op(repr: String):
   override def toString: String = this.repr
@@ -12,14 +19,16 @@ enum Op(repr: String):
   case Lte extends Op("<=")
   case Gt  extends Op(">")
   case Lt extends Op("<")
+  case Neq extends Op("!=")
+  case Eq extends Op("==")
 
 
 /**
  * 2 point lattice L < H
  */
 
-enum TPLattice(repr: String, value: Int):
-  def v : Int = this.value;
+enum TPLattice(repr: String, v: Int):
+  def value : Int = this.v;
   case Low extends TPLattice("LOW", 0)
   case High extends TPLattice("HIGH", 1)
 
@@ -28,9 +37,9 @@ object TPLattice {
     case Low => l2
     case High => High
 
-  def lower(l1: TPLattice, l2: TPLattice) : Boolean = l1.v < l2.v
-
-  def notLower(l1: TPLattice, l2: TPLattice) : Boolean = !lower(l1, l2)
+  def meet(l1: TPLattice, l2: TPLattice) : TPLattice = l1 match
+    case Low => Low
+    case High => l2
 }
 
 abstract sealed class Expr {
